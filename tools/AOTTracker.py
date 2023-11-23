@@ -14,24 +14,79 @@ import dataloaders.video_transforms as tr
 import numpy as np
 import torch
 import torch.nn.functional as F
+import cv2
+#define enum  type
+from enum import Enum
+class TrackerType(Enum):
+    aot = 1
+    deaot = 2
+    @staticmethod
+    def from_str(label):
+        if label.lower()=='aot':
+            return TrackerType.aot
+        elif label.lower()=='deaot':
+            return TrackerType.deaot
+        else:
+            raise ValueError("tracker type is not supported")
+class ModelType(Enum):
+    aott = 1,
+    aots = 2,
+    aotb = 3,
+    aotl = 4,
+    r50_aotl = 5,
+    swinb_aotl = 6,
+    deaott = 7,
+    deaots = 8,
+    deaotb = 9,
+    deaotl = 10,
+    r50_deaotl = 11,
+    swinb_deaotl = 12
+    @staticmethod
+    def from_str(label):
+        # if label.lower()=="aott":
+        #     return ModelType.AOTT
+        # elif label.lower()=="aots":
+        #     return ModelType.AOTS
+        # elif label.lower()=="aotb":
+        #     return ModelType.AOTB
+        # elif label.lower()=="aotl":
+        #     return ModelType.AOTL
+        # elif label.lower()=="r50_aotl":
+        #     return ModelType.R50_AOTL
+        # elif label.lower()=="swinb_aotl":
+        return ModelType[label.lower()]
+
+
 class AOTTracker:
-    def __init__(self,model_path:str,tracker_type="AOT",
+    def __init__(self,model_path:str,tracker_type="DeAOT",model_type="DeAOTL",
                  max_size=480 * 1.3,device='cuda'):
         """
         constructor of AOTTracker
         model_path: path to the model
         """
         self.model_path = model_path
-        self.tracker_type = tracker_type
+        #parse enum type
+
+        self.tracker_type = TrackerType.from_str(tracker_type)
+        self.model_type = ModelType.from_str(model_type)
+        #check if model type and tracker type is compatible
+        if tracker_type==TrackerType.aot:
+            assert model_type<= ModelType.swinb_aotl
+        elif tracker_type==TrackerType.deaot:
+            assert model_type<= ModelType.swinb_deaotl and model_type>=ModelType.deaott
         engine_config = importlib.import_module('configs.'+'pre_ytb_dav')
-        cfg = engine_config.EngineConfig('default', "deaotl")
+        #get the string of model type
+        model_type = model_type.lower()
+        cfg = engine_config.EngineConfig('default', model_type)
         cfg.TEST_CKPT_PATH = model_path
         cfg.TEST_MIN_SIZE = None
         cfg.TEST_MAX_SIZE = max_size * 800. / 480.
-        if tracker_type=="AOT":
+        if self.tracker_type==TrackerType.aot:
             model = AOT(cfg, encoder=cfg.MODEL_ENCODER)
-        elif tracker_type=="DeAOT":
+        elif self.tracker_type==TrackerType.deaot:
             model = DeAOT(cfg, encoder=cfg.MODEL_ENCODER)
+        else:
+            raise ValueError("tracker type is not supported")
         self.model, _ = load_network(model, model_path, 0)
         self.engine = build_engine(cfg.MODEL_ENGINE,
                           phase='eval',
@@ -143,8 +198,11 @@ class AOTTracker:
             and frame.shape[2]==3 and frame.dtype==np.uint8)
         assert (isinstance(label,np.ndarray) and label.ndim==2\
             and label.dtype==np.uint8)
+        self.clear()
         #determin the number of objects
         obj_nums = np.max(label)
+        if obj_nums==0:
+            raise ValueError("no object in the reference frame")
         self.engine.restart_engine()
         frame_tensor = self.preprocess(frame)
         frame_tensor = frame_tensor.unsqueeze(0).cuda()
@@ -182,42 +240,3 @@ class AOTTracker:
         return pred_label,pred_prob
 
 
-if __name__ == '__main__':
-    import argparse
-    import os
-    import cv2
-    import PIL
-    from demo import _palette
-    parser = argparse.ArgumentParser(description="AOT tracker")
-
-    tracker = AOTTracker("E:\\Data\\Model\\Tracking\\AOT\\DeAOTL_PRE_YTB_DAV.pth",
-                         max_size=480*1.3,tracker_type="DeAOT")
-    input_dir = './datasets/Demo/images/1001_3iEIq5HBY1s'
-
-    #red all jpg images in this folder
-    image_files = os.listdir(input_dir)
-    #remove all the files that do not have extension .jpg
-    image_files = [os.path.join(input_dir,f) for f in image_files if f.endswith('.jpg')]
-    image_files.sort()
-    frames = []
-
-    label = PIL.Image.open('./datasets/Demo/masks/1001_3iEIq5HBY1s/00002058.png')
-    label = np.array(label, dtype=np.uint8)
-    label[np.where(label>=10)]=0
-    frame = cv2.imread(image_files[0])
-    frame = frame[:,:,::-1]
-    tracker.add_reference_frame(frame,label)
-    print('added reference frame')
-    for i,image_file in enumerate(image_files):
-        if i==0:
-            continue
-        frame = cv2.imread(image_file)
-        #frame = cv2.resize(frame,(1024,576),interpolation=cv2.INTER_LINEAR)
-        l,prob = tracker.track(frame)
-        # label = PIL.Image.fromarray(
-        #     label.squeeze().cpu().numpy().astype(
-        #                 'uint8')).convert('P')
-        # label.putpalette(_palette)
-        # #format string pad zero
-        # i = str(i).zfill(5)
-        # label.save(os.path.join('./result', '{}.png'.format(i)))

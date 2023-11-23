@@ -1,0 +1,83 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package Ivitec;
+
+
+message Image{
+	int32 width=1;
+	int32 height=2;
+	int32 num_channels = 3;
+	bytes data = 4;
+}
+
+message Response {
+	bool success = 1;
+	string  error_msg = 2;
+}
+
+message Void{
+
+}
+message InitialMask{
+	Image frame = 1;
+	Image mask = 2;
+}
+message TrackResponse{
+	bool success = 1;
+	Image mask = 2;
+	Image scores = 4;
+	string error_msg = 3;
+}
+
+
+service TrackAnything {
+	rpc set_template_mask(InitialMask) returns (Response) {}
+	rpc clear(Void) returns (Response) {}
+	rpc track(Image) returns (TrackResponse) {}
+	rpc freeze(Void) returns (Response) {}
+}
+
+message InstanceResponse {
+	int32 instance_id = 1;
+    int64 token = 2; //token is to identify the client session
+	string  error_msg = 3;
+}
+
+message StatefulInitialMask{
+    int32 instance_id=1;
+    int64 token = 2;
+	Image frame = 3;
+	Image mask = 4;
+}
+
+message StatefulTrackRequest{
+    int32 instance_id=1;
+    int64 token = 2;
+    Image frame = 3;
+}
+
+message TrackerInstance{
+    int32 instance_id=1;
+    int64 token=2;
+}
+service StatefulTrackerService {
+    rpc next_available_tracker_instance(Void) returns (InstanceResponse) {}
+    rpc set_template_mask(StatefulInitialMask) returns (Response) {}
+    rpc track(StatefulTrackRequest) returns (TrackResponse) {}
+    rpc freeze(TrackerInstance) returns (Response) {}
+    rpc finish(TrackerInstance) returns (Response) {}
+}
