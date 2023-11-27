@@ -1,8 +1,25 @@
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class Point(_message.Message):
+    __slots__ = ["x", "y", "label"]
+    X_FIELD_NUMBER: _ClassVar[int]
+    Y_FIELD_NUMBER: _ClassVar[int]
+    LABEL_FIELD_NUMBER: _ClassVar[int]
+    x: float
+    y: float
+    label: int
+    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ..., label: _Optional[int] = ...) -> None: ...
+
+class Prompt(_message.Message):
+    __slots__ = ["points"]
+    POINTS_FIELD_NUMBER: _ClassVar[int]
+    points: _containers.RepeatedCompositeFieldContainer[Point]
+    def __init__(self, points: _Optional[_Iterable[_Union[Point, _Mapping]]] = ...) -> None: ...
 
 class Image(_message.Message):
     __slots__ = ["width", "height", "num_channels", "data"]
@@ -15,6 +32,16 @@ class Image(_message.Message):
     num_channels: int
     data: bytes
     def __init__(self, width: _Optional[int] = ..., height: _Optional[int] = ..., num_channels: _Optional[int] = ..., data: _Optional[bytes] = ...) -> None: ...
+
+class ImageEmbeddingResponse(_message.Message):
+    __slots__ = ["success", "error_msg", "data"]
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MSG_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    error_msg: str
+    data: bytes
+    def __init__(self, success: bool = ..., error_msg: _Optional[str] = ..., data: _Optional[bytes] = ...) -> None: ...
 
 class Response(_message.Message):
     __slots__ = ["success", "error_msg"]
@@ -87,3 +114,13 @@ class TrackerInstance(_message.Message):
     instance_id: int
     token: int
     def __init__(self, instance_id: _Optional[int] = ..., token: _Optional[int] = ...) -> None: ...
+
+class OnnxFileSegment(_message.Message):
+    __slots__ = ["data", "error_msg", "has_more"]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MSG_FIELD_NUMBER: _ClassVar[int]
+    HAS_MORE_FIELD_NUMBER: _ClassVar[int]
+    data: bytes
+    error_msg: str
+    has_more: bool
+    def __init__(self, data: _Optional[bytes] = ..., error_msg: _Optional[str] = ..., has_more: bool = ...) -> None: ...

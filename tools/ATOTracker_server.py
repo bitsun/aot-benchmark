@@ -8,6 +8,60 @@ import json
 import traceback
 import numpy as np
 from enum import Enum
+from mobile_sam import SamPredictor,sam_model_registry
+import torch
+import cv2
+class SegmentAnythingService(pb2_grpc.SegmentAnything) :
+    def __init__(self,config_path) :
+        with open(config_path) as f:
+            config = json.load(f)
+        assert config['SAM'] is not None
+        self.model_type = config['SAM']['model_type']
+        self.model_path = config['SAM']['model_path']
+        self.decoder_onnx_path = config['SAM']['decoder_onnx_path']
+        self.sam = sam_model_registry[self.model_type](checkpoint=self.model_path)
+        if torch.has_cuda :
+            self.sam.to("cuda")
+        self.predictor = SamPredictor(self.sam)
+    def set_image(self,request,context):
+        try:
+            #decode bytes to image with jpeg decoding method
+            image_bgr = np.frombuffer(request.data, np.uint8)
+            image_bgr = np.reshape(image_bgr,(request.height,request.width,request.num_channels))
+            image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+            self.predictor.set_image(image_rgb)
+            return pb2.Response(success=True,error_msg="")
+        except Exception as e:
+            error_msg=traceback.format_exc()
+            return pb2.Response(success=False,error_msg=error_msg)
+    def encode_image(self,request,context):
+        try:
+            #decode bytes to image with jpeg decoding method
+            image_bgr = np.frombuffer(request.data, np.uint8)
+            image_bgr = np.reshape(image_bgr,(request.height,request.width,request.num_channels))
+            image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+            self.predictor.set_image(image_rgb)
+            result_bytes = self.predictor.features.detach().cpu().to(torch.float16).numpy().tobytes()
+            return pb2.ImageEmbeddingResponse(success=True,error_msg="",data=result_bytes)
+        except Exception as e:
+            error_msg=traceback.format_exc()
+            return pb2.ImageEmbeddingResponse(success=False,error_msg=error_msg,data=None)
+    def get_decoder_onnx_model(self,request,context):
+        try:
+            #read the whole file as bytes from self.decoder_onnx_path
+            with open(self.decoder_onnx_path,"rb") as f:
+                onnx_bytes = f.read()
+            length = len(onnx_bytes)
+            n = 0
+            while n<length:
+                if n+1024*1024>=length:
+                    yield pb2.OnnxFileSegment(data=onnx_bytes[n:length],error_msg="",has_more=False)
+                yield pb2.OnnxFileSegment(data=onnx_bytes[n:min(n+1024*1024,length)],error_msg="",has_more=True)
+                n+=1024*1024
+        except Exception as e:
+            error_msg=traceback.format_exc()
+            return pb2.OnnxFileSegment(data=None,error_msg=error_msg,has_more=False)
+        
 class AoTTrackerService(pb2_grpc.TrackAnythingServicer) :
     def __init__(self,tracker_config_path):
         self.tracker_config_path = tracker_config_path
@@ -187,8 +241,8 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             mask,prob = self.trackers[request.instance_id].tracker.track(image_bgr)
             mask = mask.squeeze().detach().cpu().numpy().astype(np.uint8)
             prob = prob.squeeze(0).detach().cpu().numpy()
-            #mask = np.zeros((request.height,request.width),dtype=np.uint8)
-            #prob = np.zeros((1,request.height,request.width),dtype=np.float32)
+            #mask = np.zeros((request.frame.height,request.frame.width),dtype=np.uint8)
+            #prob = np.zeros((1,request.frame.height,request.frame.width),dtype=np.float32)
             scores = np.max(prob,axis=0)
             mask_data = mask.tobytes()
             mask_image = pb2.Image(height=mask.shape[0],width=mask.shape[1],num_channels=1,data=mask_data)
@@ -197,6 +251,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             return pb2.TrackResponse(success=True,scores=score_image,mask=mask_image,error_msg="")
         
         except Exception as e:
+            logging.error("error in track:{}".format(e))
             error_msg=traceback.format_exc()
             return pb2.TrackResponse(success=False,scores=None,mask=None,error_msg=error_msg)
 
@@ -213,13 +268,15 @@ def active_tracker_monitor(ticker,tracker_service):
         finally:
             tracker_service.lock.release()
 
-def serve(max_workers,port,tracker_config_path):
-    tracker_service =StatefulAoTTrackerService(tracker_config_path,max_workers)
+def serve(max_workers,port,config_path):  
+    tracker_service =StatefulAoTTrackerService(config_path,max_workers)
+    sam_service = SegmentAnythingService(config_path)
     #ticker = threading.Event()
     #watchdog = threading.Thread(target=active_tracker_monitor,args=(ticker,tracker_service))
     #watchdog.start()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     pb2_grpc.add_StatefulTrackerServiceServicer_to_server(tracker_service,server)
+    pb2_grpc.add_SegmentAnythingServicer_to_server(sam_service,server)
     server.add_insecure_port('[::]:{}'.format(port))
     server.start()
     logging.info("server started, listening port {}".format(port))
@@ -228,7 +285,6 @@ def serve(max_workers,port,tracker_config_path):
 if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    logging.info("hello")
     parser = argparse.ArgumentParser(description="Segment anything server")
     parser.add_argument('--max-workers',type=int,default=2,help='max number of workers')
     parser.add_argument('--port',type=int,default=50051,help='port number')

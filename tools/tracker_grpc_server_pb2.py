@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19tracker_grpc_server.proto\x12\x06Ivitec\"J\n\x05Image\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c\".\n\x08Response\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x11\n\terror_msg\x18\x02 \x01(\t\"\x06\n\x04Void\"H\n\x0bInitialMask\x12\x1c\n\x05\x66rame\x18\x01 \x01(\x0b\x32\r.Ivitec.Image\x12\x1b\n\x04mask\x18\x02 \x01(\x0b\x32\r.Ivitec.Image\"o\n\rTrackResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x1b\n\x04mask\x18\x02 \x01(\x0b\x32\r.Ivitec.Image\x12\x1d\n\x06scores\x18\x04 \x01(\x0b\x32\r.Ivitec.Image\x12\x11\n\terror_msg\x18\x03 \x01(\t\"I\n\x10InstanceResponse\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x11\n\terror_msg\x18\x03 \x01(\t\"t\n\x13StatefulInitialMask\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x1c\n\x05\x66rame\x18\x03 \x01(\x0b\x32\r.Ivitec.Image\x12\x1b\n\x04mask\x18\x04 \x01(\x0b\x32\r.Ivitec.Image\"X\n\x14StatefulTrackRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x1c\n\x05\x66rame\x18\x03 \x01(\x0b\x32\r.Ivitec.Image\"5\n\x0fTrackerInstance\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x32\xd5\x01\n\rTrackAnything\x12<\n\x11set_template_mask\x12\x13.Ivitec.InitialMask\x1a\x10.Ivitec.Response\"\x00\x12)\n\x05\x63lear\x12\x0c.Ivitec.Void\x1a\x10.Ivitec.Response\"\x00\x12/\n\x05track\x12\r.Ivitec.Image\x1a\x15.Ivitec.TrackResponse\"\x00\x12*\n\x06\x66reeze\x12\x0c.Ivitec.Void\x1a\x10.Ivitec.Response\"\x00\x32\xd9\x02\n\x16StatefulTrackerService\x12K\n\x1fnext_available_tracker_instance\x12\x0c.Ivitec.Void\x1a\x18.Ivitec.InstanceResponse\"\x00\x12\x44\n\x11set_template_mask\x12\x1b.Ivitec.StatefulInitialMask\x1a\x10.Ivitec.Response\"\x00\x12>\n\x05track\x12\x1c.Ivitec.StatefulTrackRequest\x1a\x15.Ivitec.TrackResponse\"\x00\x12\x35\n\x06\x66reeze\x12\x17.Ivitec.TrackerInstance\x1a\x10.Ivitec.Response\"\x00\x12\x35\n\x06\x66inish\x12\x17.Ivitec.TrackerInstance\x1a\x10.Ivitec.Response\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19tracker_grpc_server.proto\x12\x06Ivitec\",\n\x05Point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\x12\r\n\x05label\x18\x03 \x01(\x05\"\'\n\x06Prompt\x12\x1d\n\x06points\x18\x01 \x03(\x0b\x32\r.Ivitec.Point\"J\n\x05Image\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\x12\x14\n\x0cnum_channels\x18\x03 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c\"J\n\x16ImageEmbeddingResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x11\n\terror_msg\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\".\n\x08Response\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x11\n\terror_msg\x18\x02 \x01(\t\"\x06\n\x04Void\"H\n\x0bInitialMask\x12\x1c\n\x05\x66rame\x18\x01 \x01(\x0b\x32\r.Ivitec.Image\x12\x1b\n\x04mask\x18\x02 \x01(\x0b\x32\r.Ivitec.Image\"o\n\rTrackResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x1b\n\x04mask\x18\x02 \x01(\x0b\x32\r.Ivitec.Image\x12\x1d\n\x06scores\x18\x04 \x01(\x0b\x32\r.Ivitec.Image\x12\x11\n\terror_msg\x18\x03 \x01(\t\"I\n\x10InstanceResponse\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x11\n\terror_msg\x18\x03 \x01(\t\"t\n\x13StatefulInitialMask\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x1c\n\x05\x66rame\x18\x03 \x01(\x0b\x32\r.Ivitec.Image\x12\x1b\n\x04mask\x18\x04 \x01(\x0b\x32\r.Ivitec.Image\"X\n\x14StatefulTrackRequest\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\x12\x1c\n\x05\x66rame\x18\x03 \x01(\x0b\x32\r.Ivitec.Image\"5\n\x0fTrackerInstance\x12\x13\n\x0binstance_id\x18\x01 \x01(\x05\x12\r\n\x05token\x18\x02 \x01(\x03\"D\n\x0fOnnxFileSegment\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x11\n\terror_msg\x18\x02 \x01(\t\x12\x10\n\x08has_more\x18\x03 \x01(\x08\x32\xd5\x01\n\rTrackAnything\x12<\n\x11set_template_mask\x12\x13.Ivitec.InitialMask\x1a\x10.Ivitec.Response\"\x00\x12)\n\x05\x63lear\x12\x0c.Ivitec.Void\x1a\x10.Ivitec.Response\"\x00\x12/\n\x05track\x12\r.Ivitec.Image\x1a\x15.Ivitec.TrackResponse\"\x00\x12*\n\x06\x66reeze\x12\x0c.Ivitec.Void\x1a\x10.Ivitec.Response\"\x00\x32\xc7\x01\n\x0fSegmentAnything\x12\x43\n\x16get_decoder_onnx_model\x12\x0c.Ivitec.Void\x1a\x17.Ivitec.OnnxFileSegment\"\x00\x30\x01\x12.\n\tset_image\x12\r.Ivitec.Image\x1a\x10.Ivitec.Response\"\x00\x12?\n\x0c\x65ncode_image\x12\r.Ivitec.Image\x1a\x1e.Ivitec.ImageEmbeddingResponse\"\x00\x32\xd9\x02\n\x16StatefulTrackerService\x12K\n\x1fnext_available_tracker_instance\x12\x0c.Ivitec.Void\x1a\x18.Ivitec.InstanceResponse\"\x00\x12\x44\n\x11set_template_mask\x12\x1b.Ivitec.StatefulInitialMask\x1a\x10.Ivitec.Response\"\x00\x12>\n\x05track\x12\x1c.Ivitec.StatefulTrackRequest\x1a\x15.Ivitec.TrackResponse\"\x00\x12\x35\n\x06\x66reeze\x12\x17.Ivitec.TrackerInstance\x1a\x10.Ivitec.Response\"\x00\x12\x35\n\x06\x66inish\x12\x17.Ivitec.TrackerInstance\x1a\x10.Ivitec.Response\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -21,26 +21,36 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'tracker_grpc_server_pb2', _
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _globals['_IMAGE']._serialized_start=37
-  _globals['_IMAGE']._serialized_end=111
-  _globals['_RESPONSE']._serialized_start=113
-  _globals['_RESPONSE']._serialized_end=159
-  _globals['_VOID']._serialized_start=161
-  _globals['_VOID']._serialized_end=167
-  _globals['_INITIALMASK']._serialized_start=169
-  _globals['_INITIALMASK']._serialized_end=241
-  _globals['_TRACKRESPONSE']._serialized_start=243
-  _globals['_TRACKRESPONSE']._serialized_end=354
-  _globals['_INSTANCERESPONSE']._serialized_start=356
-  _globals['_INSTANCERESPONSE']._serialized_end=429
-  _globals['_STATEFULINITIALMASK']._serialized_start=431
-  _globals['_STATEFULINITIALMASK']._serialized_end=547
-  _globals['_STATEFULTRACKREQUEST']._serialized_start=549
-  _globals['_STATEFULTRACKREQUEST']._serialized_end=637
-  _globals['_TRACKERINSTANCE']._serialized_start=639
-  _globals['_TRACKERINSTANCE']._serialized_end=692
-  _globals['_TRACKANYTHING']._serialized_start=695
-  _globals['_TRACKANYTHING']._serialized_end=908
-  _globals['_STATEFULTRACKERSERVICE']._serialized_start=911
-  _globals['_STATEFULTRACKERSERVICE']._serialized_end=1256
+  _globals['_POINT']._serialized_start=37
+  _globals['_POINT']._serialized_end=81
+  _globals['_PROMPT']._serialized_start=83
+  _globals['_PROMPT']._serialized_end=122
+  _globals['_IMAGE']._serialized_start=124
+  _globals['_IMAGE']._serialized_end=198
+  _globals['_IMAGEEMBEDDINGRESPONSE']._serialized_start=200
+  _globals['_IMAGEEMBEDDINGRESPONSE']._serialized_end=274
+  _globals['_RESPONSE']._serialized_start=276
+  _globals['_RESPONSE']._serialized_end=322
+  _globals['_VOID']._serialized_start=324
+  _globals['_VOID']._serialized_end=330
+  _globals['_INITIALMASK']._serialized_start=332
+  _globals['_INITIALMASK']._serialized_end=404
+  _globals['_TRACKRESPONSE']._serialized_start=406
+  _globals['_TRACKRESPONSE']._serialized_end=517
+  _globals['_INSTANCERESPONSE']._serialized_start=519
+  _globals['_INSTANCERESPONSE']._serialized_end=592
+  _globals['_STATEFULINITIALMASK']._serialized_start=594
+  _globals['_STATEFULINITIALMASK']._serialized_end=710
+  _globals['_STATEFULTRACKREQUEST']._serialized_start=712
+  _globals['_STATEFULTRACKREQUEST']._serialized_end=800
+  _globals['_TRACKERINSTANCE']._serialized_start=802
+  _globals['_TRACKERINSTANCE']._serialized_end=855
+  _globals['_ONNXFILESEGMENT']._serialized_start=857
+  _globals['_ONNXFILESEGMENT']._serialized_end=925
+  _globals['_TRACKANYTHING']._serialized_start=928
+  _globals['_TRACKANYTHING']._serialized_end=1141
+  _globals['_SEGMENTANYTHING']._serialized_start=1144
+  _globals['_SEGMENTANYTHING']._serialized_end=1343
+  _globals['_STATEFULTRACKERSERVICE']._serialized_start=1346
+  _globals['_STATEFULTRACKERSERVICE']._serialized_end=1691
 # @@protoc_insertion_point(module_scope)

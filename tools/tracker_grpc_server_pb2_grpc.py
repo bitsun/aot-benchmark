@@ -165,6 +165,133 @@ class TrackAnything(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
 
+class SegmentAnythingStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.get_decoder_onnx_model = channel.unary_stream(
+                '/Ivitec.SegmentAnything/get_decoder_onnx_model',
+                request_serializer=tracker__grpc__server__pb2.Void.SerializeToString,
+                response_deserializer=tracker__grpc__server__pb2.OnnxFileSegment.FromString,
+                )
+        self.set_image = channel.unary_unary(
+                '/Ivitec.SegmentAnything/set_image',
+                request_serializer=tracker__grpc__server__pb2.Image.SerializeToString,
+                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                )
+        self.encode_image = channel.unary_unary(
+                '/Ivitec.SegmentAnything/encode_image',
+                request_serializer=tracker__grpc__server__pb2.Image.SerializeToString,
+                response_deserializer=tracker__grpc__server__pb2.ImageEmbeddingResponse.FromString,
+                )
+
+
+class SegmentAnythingServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def get_decoder_onnx_model(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def set_image(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def encode_image(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_SegmentAnythingServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'get_decoder_onnx_model': grpc.unary_stream_rpc_method_handler(
+                    servicer.get_decoder_onnx_model,
+                    request_deserializer=tracker__grpc__server__pb2.Void.FromString,
+                    response_serializer=tracker__grpc__server__pb2.OnnxFileSegment.SerializeToString,
+            ),
+            'set_image': grpc.unary_unary_rpc_method_handler(
+                    servicer.set_image,
+                    request_deserializer=tracker__grpc__server__pb2.Image.FromString,
+                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+            ),
+            'encode_image': grpc.unary_unary_rpc_method_handler(
+                    servicer.encode_image,
+                    request_deserializer=tracker__grpc__server__pb2.Image.FromString,
+                    response_serializer=tracker__grpc__server__pb2.ImageEmbeddingResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'Ivitec.SegmentAnything', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class SegmentAnything(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def get_decoder_onnx_model(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/Ivitec.SegmentAnything/get_decoder_onnx_model',
+            tracker__grpc__server__pb2.Void.SerializeToString,
+            tracker__grpc__server__pb2.OnnxFileSegment.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def set_image(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Ivitec.SegmentAnything/set_image',
+            tracker__grpc__server__pb2.Image.SerializeToString,
+            tracker__grpc__server__pb2.Response.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def encode_image(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Ivitec.SegmentAnything/encode_image',
+            tracker__grpc__server__pb2.Image.SerializeToString,
+            tracker__grpc__server__pb2.ImageEmbeddingResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
 class StatefulTrackerServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 

@@ -9,8 +9,8 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description="AOT tracker")
 
-    tracker = AOTTracker("E:\\Data\\Model\\Tracking\\AOT\\DeAOTL_PRE_YTB_DAV.pth",
-                         max_size=480*1.3,tracker_type=TrackerType.DeAOT,model_type=ModelType.DeAOTL)
+    tracker = AOTTracker("E:\\Data\\Model\\Tracking\\AOT\\DeAOTS_PRE_YTB_DAV.pth",
+                         max_size=480*1.3,tracker_type="DeAOT",model_type="DeAOTS")
     input_dir = 'E:\\Data\\LogoWorkDir\\test1'
     visualize_mask = False
     visualize_overlay = True

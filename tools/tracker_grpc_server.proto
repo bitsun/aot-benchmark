@@ -16,12 +16,27 @@ syntax = "proto3";
 
 package Ivitec;
 
+message Point{
+	float x = 1;
+	float y = 2;
+	int32 label = 3;
+}
+
+message Prompt{
+	repeated Point points = 1;
+}
 
 message Image{
 	int32 width=1;
 	int32 height=2;
 	int32 num_channels = 3;
 	bytes data = 4;
+}
+
+message ImageEmbeddingResponse {
+	bool success = 1;
+	string  error_msg = 2;
+	bytes data = 3;
 }
 
 message Response {
@@ -74,6 +89,19 @@ message TrackerInstance{
     int32 instance_id=1;
     int64 token=2;
 }
+
+message OnnxFileSegment{
+	bytes data = 1;
+	string error_msg = 2;
+	bool has_more = 3;
+}
+
+service SegmentAnything {
+	rpc get_decoder_onnx_model(Void) returns(stream OnnxFileSegment){}
+	rpc set_image (Image) returns (Response) {}
+	rpc encode_image (Image) returns (ImageEmbeddingResponse) {}
+}
+
 service StatefulTrackerService {
     rpc next_available_tracker_instance(Void) returns (InstanceResponse) {}
     rpc set_template_mask(StatefulInitialMask) returns (Response) {}
