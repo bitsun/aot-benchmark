@@ -39,7 +39,7 @@ message ImageEmbeddingResponse {
 	bytes data = 3;
 }
 
-message Response {
+message BooleanResponse {
 	bool success = 1;
 	string  error_msg = 2;
 }
@@ -60,10 +60,10 @@ message TrackResponse{
 
 
 service TrackAnything {
-	rpc set_template_mask(InitialMask) returns (Response) {}
-	rpc clear(Void) returns (Response) {}
+	rpc set_template_mask(InitialMask) returns (BooleanResponse) {}
+	rpc clear(Void) returns (BooleanResponse) {}
 	rpc track(Image) returns (TrackResponse) {}
-	rpc freeze(Void) returns (Response) {}
+	rpc freeze(Void) returns (BooleanResponse) {}
 }
 
 message InstanceResponse {
@@ -93,19 +93,19 @@ message TrackerInstance{
 message OnnxFileSegment{
 	bytes data = 1;
 	string error_msg = 2;
-	bool has_more = 3;
+	int32 remaining_bytes = 3;
 }
 
 service SegmentAnything {
 	rpc get_decoder_onnx_model(Void) returns(stream OnnxFileSegment){}
-	rpc set_image (Image) returns (Response) {}
+	rpc set_image (Image) returns (BooleanResponse) {}
 	rpc encode_image (Image) returns (ImageEmbeddingResponse) {}
 }
 
 service StatefulTrackerService {
     rpc next_available_tracker_instance(Void) returns (InstanceResponse) {}
-    rpc set_template_mask(StatefulInitialMask) returns (Response) {}
+    rpc set_template_mask(StatefulInitialMask) returns (BooleanResponse) {}
     rpc track(StatefulTrackRequest) returns (TrackResponse) {}
-    rpc freeze(TrackerInstance) returns (Response) {}
-    rpc finish(TrackerInstance) returns (Response) {}
+    rpc freeze(TrackerInstance) returns (BooleanResponse) {}
+    rpc finish(TrackerInstance) returns (BooleanResponse) {}
 }

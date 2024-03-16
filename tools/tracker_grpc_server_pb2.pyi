@@ -43,7 +43,7 @@ class ImageEmbeddingResponse(_message.Message):
     data: bytes
     def __init__(self, success: bool = ..., error_msg: _Optional[str] = ..., data: _Optional[bytes] = ...) -> None: ...
 
-class Response(_message.Message):
+class BooleanResponse(_message.Message):
     __slots__ = ["success", "error_msg"]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     ERROR_MSG_FIELD_NUMBER: _ClassVar[int]
@@ -116,11 +116,11 @@ class TrackerInstance(_message.Message):
     def __init__(self, instance_id: _Optional[int] = ..., token: _Optional[int] = ...) -> None: ...
 
 class OnnxFileSegment(_message.Message):
-    __slots__ = ["data", "error_msg", "has_more"]
+    __slots__ = ["data", "error_msg", "remaining_bytes"]
     DATA_FIELD_NUMBER: _ClassVar[int]
     ERROR_MSG_FIELD_NUMBER: _ClassVar[int]
-    HAS_MORE_FIELD_NUMBER: _ClassVar[int]
+    REMAINING_BYTES_FIELD_NUMBER: _ClassVar[int]
     data: bytes
     error_msg: str
-    has_more: bool
-    def __init__(self, data: _Optional[bytes] = ..., error_msg: _Optional[str] = ..., has_more: bool = ...) -> None: ...
+    remaining_bytes: int
+    def __init__(self, data: _Optional[bytes] = ..., error_msg: _Optional[str] = ..., remaining_bytes: _Optional[int] = ...) -> None: ...

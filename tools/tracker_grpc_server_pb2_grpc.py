@@ -17,12 +17,12 @@ class TrackAnythingStub(object):
         self.set_template_mask = channel.unary_unary(
                 '/Ivitec.TrackAnything/set_template_mask',
                 request_serializer=tracker__grpc__server__pb2.InitialMask.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
         self.clear = channel.unary_unary(
                 '/Ivitec.TrackAnything/clear',
                 request_serializer=tracker__grpc__server__pb2.Void.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
         self.track = channel.unary_unary(
                 '/Ivitec.TrackAnything/track',
@@ -32,7 +32,7 @@ class TrackAnythingStub(object):
         self.freeze = channel.unary_unary(
                 '/Ivitec.TrackAnything/freeze',
                 request_serializer=tracker__grpc__server__pb2.Void.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
 
 
@@ -69,12 +69,12 @@ def add_TrackAnythingServicer_to_server(servicer, server):
             'set_template_mask': grpc.unary_unary_rpc_method_handler(
                     servicer.set_template_mask,
                     request_deserializer=tracker__grpc__server__pb2.InitialMask.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'clear': grpc.unary_unary_rpc_method_handler(
                     servicer.clear,
                     request_deserializer=tracker__grpc__server__pb2.Void.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'track': grpc.unary_unary_rpc_method_handler(
                     servicer.track,
@@ -84,7 +84,7 @@ def add_TrackAnythingServicer_to_server(servicer, server):
             'freeze': grpc.unary_unary_rpc_method_handler(
                     servicer.freeze,
                     request_deserializer=tracker__grpc__server__pb2.Void.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -109,7 +109,7 @@ class TrackAnything(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.TrackAnything/set_template_mask',
             tracker__grpc__server__pb2.InitialMask.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -126,7 +126,7 @@ class TrackAnything(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.TrackAnything/clear',
             tracker__grpc__server__pb2.Void.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -160,7 +160,7 @@ class TrackAnything(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.TrackAnything/freeze',
             tracker__grpc__server__pb2.Void.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -182,7 +182,7 @@ class SegmentAnythingStub(object):
         self.set_image = channel.unary_unary(
                 '/Ivitec.SegmentAnything/set_image',
                 request_serializer=tracker__grpc__server__pb2.Image.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
         self.encode_image = channel.unary_unary(
                 '/Ivitec.SegmentAnything/encode_image',
@@ -223,7 +223,7 @@ def add_SegmentAnythingServicer_to_server(servicer, server):
             'set_image': grpc.unary_unary_rpc_method_handler(
                     servicer.set_image,
                     request_deserializer=tracker__grpc__server__pb2.Image.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'encode_image': grpc.unary_unary_rpc_method_handler(
                     servicer.encode_image,
@@ -270,7 +270,7 @@ class SegmentAnything(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.SegmentAnything/set_image',
             tracker__grpc__server__pb2.Image.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -309,7 +309,7 @@ class StatefulTrackerServiceStub(object):
         self.set_template_mask = channel.unary_unary(
                 '/Ivitec.StatefulTrackerService/set_template_mask',
                 request_serializer=tracker__grpc__server__pb2.StatefulInitialMask.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
         self.track = channel.unary_unary(
                 '/Ivitec.StatefulTrackerService/track',
@@ -319,12 +319,12 @@ class StatefulTrackerServiceStub(object):
         self.freeze = channel.unary_unary(
                 '/Ivitec.StatefulTrackerService/freeze',
                 request_serializer=tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
         self.finish = channel.unary_unary(
                 '/Ivitec.StatefulTrackerService/finish',
                 request_serializer=tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
-                response_deserializer=tracker__grpc__server__pb2.Response.FromString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
 
 
@@ -372,7 +372,7 @@ def add_StatefulTrackerServiceServicer_to_server(servicer, server):
             'set_template_mask': grpc.unary_unary_rpc_method_handler(
                     servicer.set_template_mask,
                     request_deserializer=tracker__grpc__server__pb2.StatefulInitialMask.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'track': grpc.unary_unary_rpc_method_handler(
                     servicer.track,
@@ -382,12 +382,12 @@ def add_StatefulTrackerServiceServicer_to_server(servicer, server):
             'freeze': grpc.unary_unary_rpc_method_handler(
                     servicer.freeze,
                     request_deserializer=tracker__grpc__server__pb2.TrackerInstance.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'finish': grpc.unary_unary_rpc_method_handler(
                     servicer.finish,
                     request_deserializer=tracker__grpc__server__pb2.TrackerInstance.FromString,
-                    response_serializer=tracker__grpc__server__pb2.Response.SerializeToString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -429,7 +429,7 @@ class StatefulTrackerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.StatefulTrackerService/set_template_mask',
             tracker__grpc__server__pb2.StatefulInitialMask.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -463,7 +463,7 @@ class StatefulTrackerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.StatefulTrackerService/freeze',
             tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -480,6 +480,6 @@ class StatefulTrackerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.StatefulTrackerService/finish',
             tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
-            tracker__grpc__server__pb2.Response.FromString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -30,10 +30,10 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             image_bgr = np.reshape(image_bgr,(request.height,request.width,request.num_channels))
             image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
             self.predictor.set_image(image_rgb)
-            return pb2.Response(success=True,error_msg="")
+            return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def encode_image(self,request,context):
         try:
             #decode bytes to image with jpeg decoding method
@@ -55,12 +55,12 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             n = 0
             while n<length:
                 if n+1024*1024>=length:
-                    yield pb2.OnnxFileSegment(data=onnx_bytes[n:length],error_msg="",has_more=False)
-                yield pb2.OnnxFileSegment(data=onnx_bytes[n:min(n+1024*1024,length)],error_msg="",has_more=True)
+                    yield pb2.OnnxFileSegment(data=onnx_bytes[n:length],error_msg="",remaining_bytes=0)
+                yield pb2.OnnxFileSegment(data=onnx_bytes[n:min(n+1024*1024,length)],error_msg="",remaining_bytes=length-n)
                 n+=1024*1024
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.OnnxFileSegment(data=None,error_msg=error_msg,has_more=False)
+            return pb2.OnnxFileSegment(data=None,error_msg=error_msg,remaining_bytes=0)
         
 class AoTTrackerService(pb2_grpc.TrackAnythingServicer) :
     def __init__(self,tracker_config_path):
@@ -84,24 +84,24 @@ class AoTTrackerService(pb2_grpc.TrackAnythingServicer) :
             mask = np.frombuffer(request.mask.data, np.uint8)
             mask = np.reshape(mask,(request.mask.height,request.mask.width))
             self.tracker.add_reference_frame(image_bgr,mask)
-            return pb2.Response(success=True)
+            return pb2.BooleanResponse(success=True)
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def clear(self,request,context):
         try:
             self.tracker.clear()
-            return pb2.Response(success=True,error_msg="")
+            return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def freeze(self,request,context):
         try:
             self.tracker.freeze()
-            return pb2.Response(success=True,error_msg="")
+            return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def track(self,request,context):
         try:
             image_bgr = np.frombuffer(request.data, np.uint8)
@@ -198,10 +198,10 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             stateful_tracker.tracker.add_reference_frame(image_bgr,mask)
             stateful_tracker.state = State.BUSY
             stateful_tracker.last_track_time = datetime.now()
-            return pb2.Response(success=True)
+            return pb2.BooleanResponse(success=True)
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     
     def freeze(self,request,context):
         try:
@@ -210,10 +210,10 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             if request.token!=self.trackers[request.instance_id].token:
                 raise Exception("invalid token")
             self.trackers[request.instance_id].tracker.freeze()
-            return pb2.Response(success=True,error_msg="")
+            return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def finish(self,request,context):
         try:
             if request.instance_id<0 or request.instance_id>=len(self.trackers):
@@ -222,10 +222,10 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
                 raise Exception("invalid token")
             self.lock.acquire()
             self.trackers[request.instance_id].reset()
-            return pb2.Response(success=True,error_msg="")
+            return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
-            return pb2.Response(success=False,error_msg=error_msg)
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
         finally:
             self.lock.release()
         
@@ -288,6 +288,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Segment anything server")
     parser.add_argument('--max-workers',type=int,default=2,help='max number of workers')
     parser.add_argument('--port',type=int,default=50051,help='port number')
-    parser.add_argument('--config-path',type=str,required=False,help='tracking model path')
+    parser.add_argument('--config-path',type=str,required=True,help='tracking model path')
     args = parser.parse_args()
     serve(args.max_workers,args.port,args.config_path)
