@@ -11,6 +11,9 @@ from enum import Enum
 from mobile_sam import SamPredictor,sam_model_registry
 import torch
 import cv2
+import logging
+from logging.handlers import TimedRotatingFileHandler
+logger:logging.Logger = logging.getLogger(__name__)
 class SegmentAnythingService(pb2_grpc.SegmentAnything) :
     def __init__(self,config_path) :
         with open(config_path) as f:
@@ -33,6 +36,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
+            logger.error("error in set_image:{}".format(error_msg))
             return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def encode_image(self,request,context):
         try:
@@ -45,6 +49,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             return pb2.ImageEmbeddingResponse(success=True,error_msg="",data=result_bytes)
         except Exception as e:
             error_msg=traceback.format_exc()
+            logger.error("error in encode_image:{}".format(error_msg))
             return pb2.ImageEmbeddingResponse(success=False,error_msg=error_msg,data=None)
     def get_decoder_onnx_model(self,request,context):
         try:
@@ -83,6 +88,8 @@ class AoTTrackerService(pb2_grpc.TrackAnythingServicer) :
             #get the mask
             mask = np.frombuffer(request.mask.data, np.uint8)
             mask = np.reshape(mask,(request.mask.height,request.mask.width))
+            #make mask continuous
+            mask = np.ascontiguousarray(mask)
             self.tracker.add_reference_frame(image_bgr,mask)
             return pb2.BooleanResponse(success=True)
         except Exception as e:
@@ -172,6 +179,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
                     tracker.state = State.RESERVED
                     token = int(datetime.now().timestamp()*1000000)
                     tracker.token = token
+                    logger.info("tracker {} is reserved by client with token {}".format(i,token))
                     return pb2.InstanceResponse(instance_id=i,token = token, error_msg="")
         finally:
             self.lock.release()
@@ -198,9 +206,11 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             stateful_tracker.tracker.add_reference_frame(image_bgr,mask)
             stateful_tracker.state = State.BUSY
             stateful_tracker.last_track_time = datetime.now()
+            logger.info("tracker {} is set with template mask".format(request.instance_id))
             return pb2.BooleanResponse(success=True)
         except Exception as e:
             error_msg=traceback.format_exc()
+            logger.error("error in set_template_mask:{}".format(error_msg))
             return pb2.BooleanResponse(success=False,error_msg=error_msg)
     
     def freeze(self,request,context):
@@ -210,9 +220,11 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             if request.token!=self.trackers[request.instance_id].token:
                 raise Exception("invalid token")
             self.trackers[request.instance_id].tracker.freeze()
+            logger.info("tracker {} is frozen".format(request.instance_id))
             return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
+            logger.error("error in freeze tracker {}:{}".format(request.instance_id,error_msg))
             return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def finish(self,request,context):
         try:
@@ -222,9 +234,11 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
                 raise Exception("invalid token")
             self.lock.acquire()
             self.trackers[request.instance_id].reset()
+            logger.info("tracker {} is finished with tracking".format(request.instance_id))
             return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
+            logger.error("error in finish tracker {}:{}".format(request.instance_id,error_msg))
             return pb2.BooleanResponse(success=False,error_msg=error_msg)
         finally:
             self.lock.release()
@@ -234,7 +248,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             if request.instance_id<0 or request.instance_id>=len(self.trackers):
                 raise Exception("invalid instance id")
             if request.token!=self.trackers[request.instance_id].token:
-                logging.error("invalid token,input token:{},expected token:{}".format(request.token,self.trackers[request.instance_id].token))
+                logger.error("invalid token,input token:{},expected token:{}".format(request.token,self.trackers[request.instance_id].token))
                 raise Exception("invalid token")
             image_bgr = np.frombuffer(request.frame.data, np.uint8)
             image_bgr = np.reshape(image_bgr,(request.frame.height,request.frame.width,request.frame.num_channels))
@@ -251,7 +265,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             return pb2.TrackResponse(success=True,scores=score_image,mask=mask_image,error_msg="")
         
         except Exception as e:
-            logging.error("error in track:{}".format(e))
+            logger.error("error in track:{}".format(e))
             error_msg=traceback.format_exc()
             return pb2.TrackResponse(success=False,scores=None,mask=None,error_msg=error_msg)
 
@@ -263,7 +277,7 @@ def active_tracker_monitor(ticker,tracker_service):
             for i,tracker in enumerate(tracker_service.trackers):
                 if tracker.state==State.BUSY and (now-tracker.last_track_time).total_seconds()>10:
                     #log the reset
-                    logging.info("reset tracker {} because it is idle for more than 10 sec".format(i))
+                    logger.info("reset tracker {} because it is idle for more than 10 sec".format(i))
                     tracker.reset()
         finally:
             tracker_service.lock.release()
@@ -283,7 +297,13 @@ def serve(max_workers,port,config_path):
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    logger = logging.getLogger()
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+    handler = TimedRotatingFileHandler('ato_tracker.log', 
+                                   when='midnight',
+                                   backupCount=10)
+    handler.setFormatter(formatter)
+    logger = logging.getLogger(__name__)
+    logger.addHandler(handler)
     logger.setLevel(logging.INFO)
     parser = argparse.ArgumentParser(description="Segment anything server")
     parser.add_argument('--max-workers',type=int,default=2,help='max number of workers')
