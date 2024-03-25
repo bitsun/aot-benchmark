@@ -26,6 +26,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
         if torch.has_cuda :
             self.sam.to("cuda")
         self.predictor = SamPredictor(self.sam)
+        self.lock = threading.Lock()
     def set_image(self,request,context):
         try:
             #decode bytes to image with jpeg decoding method
@@ -39,6 +40,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             logger.error("error in set_image:{}".format(error_msg))
             return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def encode_image(self,request,context):
+        self.lock.acquire()
         try:
             #decode bytes to image with jpeg decoding method
             image_bgr = np.frombuffer(request.data, np.uint8)
@@ -51,6 +53,8 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             error_msg=traceback.format_exc()
             logger.error("error in encode_image:{}".format(error_msg))
             return pb2.ImageEmbeddingResponse(success=False,error_msg=error_msg,data=None)
+        finally:
+            self.lock.release()
     def get_decoder_onnx_model(self,request,context):
         try:
             #read the whole file as bytes from self.decoder_onnx_path
@@ -288,7 +292,7 @@ def serve(max_workers,port,config_path):
     #ticker = threading.Event()
     #watchdog = threading.Thread(target=active_tracker_monitor,args=(ticker,tracker_service))
     #watchdog.start()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
     pb2_grpc.add_StatefulTrackerServiceServicer_to_server(tracker_service,server)
     pb2_grpc.add_SegmentAnythingServicer_to_server(sam_service,server)
     server.add_insecure_port('[::]:{}'.format(port))
