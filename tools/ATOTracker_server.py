@@ -289,9 +289,9 @@ def active_tracker_monitor(ticker,tracker_service):
 def serve(max_workers,port,config_path):  
     tracker_service =StatefulAoTTrackerService(config_path,max_workers)
     sam_service = SegmentAnythingService(config_path)
-    #ticker = threading.Event()
-    #watchdog = threading.Thread(target=active_tracker_monitor,args=(ticker,tracker_service))
-    #watchdog.start()
+    ticker = threading.Event()
+    watchdog = threading.Thread(target=active_tracker_monitor,args=(ticker,tracker_service))
+    watchdog.start()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
     pb2_grpc.add_StatefulTrackerServiceServicer_to_server(tracker_service,server)
     pb2_grpc.add_SegmentAnythingServicer_to_server(sam_service,server)
