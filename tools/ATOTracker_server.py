@@ -1,3 +1,4 @@
+
 import argparse
 import grpc
 from concurrent import futures
@@ -23,7 +24,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
         self.model_path = config['SAM']['model_path']
         self.decoder_onnx_path = config['SAM']['decoder_onnx_path']
         self.sam = sam_model_registry[self.model_type](checkpoint=self.model_path)
-        if torch.has_cuda :
+        if torch.backends.cuda.is_built() :
             self.sam.to("cuda")
         self.predictor = SamPredictor(self.sam)
         self.lock = threading.Lock()

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from AOTTracker import AOTTracker,TrackerType,ModelType
 import argparse
@@ -11,7 +12,12 @@ if __name__ == '__main__':
 
     tracker = AOTTracker("E:\\Data\\Model\\Tracking\\AOT\\DeAOTS_PRE_YTB_DAV.pth",
                          max_size=480*1.3,tracker_type="DeAOT",model_type="DeAOTS")
-    input_dir = 'E:\\Data\\LogoWorkDir\\test1'
+    #get the current dir of the script
+    script_path = os.path.abspath(__file__)
+
+    # Get the directory of the script
+    script_dir = os.path.dirname(script_path)
+    input_dir = os.path.join(script_dir,'../datasets/ivitec')
     visualize_mask = False
     visualize_overlay = True
     #red all jpg images in this folder
@@ -21,7 +27,7 @@ if __name__ == '__main__':
     image_files.sort()
     frames = []
 
-    label = PIL.Image.open('E:\\Data\\LogoWorkDir\\test1\\0001.png')
+    label = PIL.Image.open(os.path.join(input_dir,"0001.png"))
     label = np.array(label, dtype=np.uint8)
     label[np.where(label>=10)]=0
     frame = cv2.imread(image_files[0])
