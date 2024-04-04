@@ -259,7 +259,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             image_bgr = np.reshape(image_bgr,(request.frame.height,request.frame.width,request.frame.num_channels))
             mask,prob = self.trackers[request.instance_id].tracker.track(image_bgr)
             mask = mask.squeeze().detach().cpu().numpy().astype(np.uint8)
-            prob = prob.squeeze(0).detach().cpu().numpy()
+            prob = prob.squeeze(0).detach().float().cpu().numpy()
             #mask = np.zeros((request.frame.height,request.frame.width),dtype=np.uint8)
             #prob = np.zeros((1,request.frame.height,request.frame.width),dtype=np.float32)
             scores = np.max(prob,axis=0)

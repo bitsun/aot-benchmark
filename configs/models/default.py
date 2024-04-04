@@ -25,3 +25,4 @@ class DefaultModelConfig():
         self.TEST_LONG_TERM_MEM_GAP = 9999
 
         self.TEST_SHORT_TERM_MEM_SKIP = 1
+        self.half = False

@@ -24,6 +24,8 @@ class DeAOTEngine(AOTEngine):
                 curr_one_hot_mask = one_hot_mask(curr_mask, self.max_obj_num)
             else:
                 curr_one_hot_mask = curr_mask
+            if self.cfg.half:
+                curr_one_hot_mask = curr_one_hot_mask.half()
             curr_id_emb = self.assign_identity(curr_one_hot_mask)
 
         lstt_curr_memories = self.curr_lstt_output[1]

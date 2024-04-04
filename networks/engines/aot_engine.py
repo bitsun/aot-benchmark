@@ -215,7 +215,8 @@ class AOTEngine(nn.Module):
         if curr_one_hot_mask is None:
             print('No mask for reference frame!')
             exit()
-
+        if self.cfg.half:
+            curr_one_hot_mask = curr_one_hot_mask.half()
         if self.input_size_2d is None:
             self.update_size(img.size()[2:], curr_enc_embs[-1].size()[2:])
 
@@ -226,6 +227,8 @@ class AOTEngine(nn.Module):
             self.pos_emb = self.AOT.get_pos_emb(curr_enc_embs[-1]).expand(
                 self.batch_size, -1, -1,
                 -1).view(self.batch_size, -1, self.enc_hw).permute(2, 0, 1)
+            if self.cfg.half:
+                self.pos_emb = self.pos_emb.half()
 
         curr_id_emb = self.assign_identity(curr_one_hot_mask)
         self.curr_id_embs = curr_id_emb

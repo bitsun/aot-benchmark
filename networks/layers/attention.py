@@ -882,7 +882,7 @@ class LocalGatedPropagation(nn.Module):
 
         global_attn = torch.zeros(
             (batch_size, self.num_head, height * width, pad_height, pad_width),
-            device=local_attn.device)
+            device=local_attn.device, dtype=local_attn.dtype)
         global_attn[local_mask.expand(batch_size, self.num_head,
                                       -1, -1, -1)] = local_attn.transpose(
                                           -1, -2).reshape(-1)
