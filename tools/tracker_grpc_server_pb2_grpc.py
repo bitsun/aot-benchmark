@@ -174,6 +174,11 @@ class SegmentAnythingStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.get_sam_type = channel.unary_unary(
+                '/Ivitec.SegmentAnything/get_sam_type',
+                request_serializer=tracker__grpc__server__pb2.Void.SerializeToString,
+                response_deserializer=tracker__grpc__server__pb2.SamTypeResponse.FromString,
+                )
         self.get_decoder_onnx_model = channel.unary_stream(
                 '/Ivitec.SegmentAnything/get_decoder_onnx_model',
                 request_serializer=tracker__grpc__server__pb2.Void.SerializeToString,
@@ -193,6 +198,12 @@ class SegmentAnythingStub(object):
 
 class SegmentAnythingServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def get_sam_type(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def get_decoder_onnx_model(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -215,6 +226,11 @@ class SegmentAnythingServicer(object):
 
 def add_SegmentAnythingServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'get_sam_type': grpc.unary_unary_rpc_method_handler(
+                    servicer.get_sam_type,
+                    request_deserializer=tracker__grpc__server__pb2.Void.FromString,
+                    response_serializer=tracker__grpc__server__pb2.SamTypeResponse.SerializeToString,
+            ),
             'get_decoder_onnx_model': grpc.unary_stream_rpc_method_handler(
                     servicer.get_decoder_onnx_model,
                     request_deserializer=tracker__grpc__server__pb2.Void.FromString,
@@ -239,6 +255,23 @@ def add_SegmentAnythingServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class SegmentAnything(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def get_sam_type(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Ivitec.SegmentAnything/get_sam_type',
+            tracker__grpc__server__pb2.Void.SerializeToString,
+            tracker__grpc__server__pb2.SamTypeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def get_decoder_onnx_model(request,

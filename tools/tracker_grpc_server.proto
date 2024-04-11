@@ -44,6 +44,18 @@ message BooleanResponse {
 	string  error_msg = 2;
 }
 
+enum SamType{
+	Unknown = 0;
+	SAM = 1;
+	EfficientVitSAM = 2;
+	SAM_HQ = 3;
+}
+
+message SamTypeResponse {
+	SamType sam_type = 1;
+	string  error_msg = 2;
+}
+
 message Void{
 
 }
@@ -97,6 +109,7 @@ message OnnxFileSegment{
 }
 
 service SegmentAnything {
+	rpc get_sam_type(Void) returns (SamTypeResponse){}
 	rpc get_decoder_onnx_model(Void) returns(stream OnnxFileSegment){}
 	rpc set_image (Image) returns (BooleanResponse) {}
 	rpc encode_image (Image) returns (ImageEmbeddingResponse) {}

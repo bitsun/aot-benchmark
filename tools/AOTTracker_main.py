@@ -10,7 +10,7 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description="AOT tracker")
 
-    tracker = AOTTracker("E:\\Data\\Model\\Tracking\\AOT\\DeAOTS_PRE_YTB_DAV.pth",
+    tracker = AOTTracker("/mnt/e/Data/Model/Tracking/AOT/DeAOTS_PRE_YTB_DAV.pth",
                          max_size=480*1.3,tracker_type="DeAOT",model_type="DeAOTS",half=True)
     #get the current dir of the script
     script_path = os.path.abspath(__file__)
