@@ -1,4 +1,3 @@
-
 import argparse
 import grpc
 from concurrent import futures
@@ -9,24 +8,28 @@ import json
 import traceback
 import numpy as np
 from enum import Enum
-from mobile_sam import SamPredictor,sam_model_registry
+#from mobile_sam import SamPredictor,sam_model_registry 
+import sam,sam_hq,efficientvit_sam
 import torch
 import cv2
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from sam_registry import sam_registry
 logger:logging.Logger = logging.getLogger(__name__)
 class SegmentAnythingService(pb2_grpc.SegmentAnything) :
     def __init__(self,config_path) :
         with open(config_path) as f:
             config = json.load(f)
         assert config['SAM'] is not None
-        self.model_type = config['SAM']['model_type']
-        self.model_path = config['SAM']['model_path']
-        self.decoder_onnx_path = config['SAM']['decoder_onnx_path']
-        self.sam = sam_model_registry[self.model_type](checkpoint=self.model_path)
-        if torch.backends.cuda.is_built() :
-            self.sam.to("cuda")
-        self.predictor = SamPredictor(self.sam)
+        self.sam = sam_registry.get(config['SAM']['type'],**config['SAM']['args'])
+        #self.model_type = config['SAM']['model_type']
+        #self.model_path = config['SAM']['model_path']
+        #self.decoder_onnx_path = config['SAM']['decoder_onnx_path']
+        self.decoder_onnx_path = self.sam.decoder_onnx_path
+        #self.sam = sam_model_registry[self.model_type](checkpoint=self.model_path)
+        #if torch.backends.cuda.is_built() :
+        #    self.sam.to("cuda")
+        #self.predictor = SamPredictor(self.sam)
         self.lock = threading.Lock()
     def set_image(self,request,context):
         try:
@@ -34,7 +37,7 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             image_bgr = np.frombuffer(request.data, np.uint8)
             image_bgr = np.reshape(image_bgr,(request.height,request.width,request.num_channels))
             image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-            self.predictor.set_image(image_rgb)
+            raise Exception("not implemented")
             return pb2.BooleanResponse(success=True,error_msg="")
         except Exception as e:
             error_msg=traceback.format_exc()
@@ -47,8 +50,9 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
             image_bgr = np.frombuffer(request.data, np.uint8)
             image_bgr = np.reshape(image_bgr,(request.height,request.width,request.num_channels))
             image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-            self.predictor.set_image(image_rgb)
-            result_bytes = self.predictor.features.detach().cpu().to(torch.float16).numpy().tobytes()
+            #self.predictor.set_image(image_rgb)
+            result_bytes = self.sam.encode_image(image_rgb).astype(np.float16).tobytes()
+            #result_bytes = self.predictor.features.detach().cpu().to(torch.float16).numpy().tobytes()
             return pb2.ImageEmbeddingResponse(success=True,error_msg="",data=result_bytes)
         except Exception as e:
             error_msg=traceback.format_exc()
@@ -71,7 +75,14 @@ class SegmentAnythingService(pb2_grpc.SegmentAnything) :
         except Exception as e:
             error_msg=traceback.format_exc()
             return pb2.OnnxFileSegment(data=None,error_msg=error_msg,remaining_bytes=0)
-        
+    def get_sam_type(self,request,context):
+        #create enum from string
+        try:
+            sam_type = pb2.SamType.Value(self.sam.sam_type)
+            return pb2.SamTypeResponse(sam_type=sam_type,error_msg="")
+        except Exception as e:
+            error_msg=traceback.format_exc()
+            return pb2.SamTypeResponse(sam_type=pb2.SamType.Unknown,error_msg=error_msg)       
 class AoTTrackerService(pb2_grpc.TrackAnythingServicer) :
     def __init__(self,tracker_config_path):
         self.tracker_config_path = tracker_config_path
