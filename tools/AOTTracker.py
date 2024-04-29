@@ -180,14 +180,22 @@ class AOTTracker:
             tmp = tmp.transpose((2, 0, 1))
             return torch.from_numpy(tmp).cuda()
         
-        tmp = cv2.resize(image,dsize=(new_w, new_h),interpolation=cv2.INTER_CUBIC)
-        tmp = tmp.astype(np.float32)
-        tmp = tmp / 255.
-        tmp -= (0.485, 0.456, 0.406)
-        tmp /= (0.229, 0.224, 0.225)
-        tmp = tmp.transpose((2, 0, 1))
-        return torch.from_numpy(tmp)
-    
+        # tmp1 = cv2.resize(image,dsize=(new_w, new_h),interpolation=cv2.INTER_CUBIC)
+        # tmp1 = tmp1.astype(np.float32)
+        # tmp1 = tmp1 / 255.
+        # tmp1 -= (0.485, 0.456, 0.406)
+        # tmp1 /= (0.229, 0.224, 0.225)
+        # tmp1 = tmp1.transpose((2, 0, 1))
+        tmp = torch.from_numpy(image.astype(np.float32)).float().cuda()
+        tmp = tmp.permute(2,0,1)
+        tmp = F.interpolate(tmp.unsqueeze(0),size=(new_h, new_w),mode='bilinear')/255.
+        tmp = tmp.squeeze(0)
+        #tmp = tmp / 255.
+        tmp[0] = (tmp[0] - 0.485) / 0.229
+        tmp[1] = (tmp[1] - 0.456) / 0.224
+        tmp[2] = (tmp[2] - 0.406) / 0.225
+        #return torch.from_numpy(tmp)
+        return tmp
     def clear(self):
         """
         clear the tracker,all the reference frames and masks and internal memory will be cleared
