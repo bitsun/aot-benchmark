@@ -195,6 +195,7 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
                     tracker.state = State.RESERVED
                     token = int(datetime.now().timestamp()*1000000)
                     tracker.token = token
+                    tracker.last_track_time = datetime.now()
                     logger.info("tracker {} is reserved by client with token {}".format(i,token))
                     return pb2.InstanceResponse(instance_id=i,token = token, error_msg="")
         finally:
@@ -291,7 +292,7 @@ def active_tracker_monitor(ticker,tracker_service):
         try:
             tracker_service.lock.acquire()
             for i,tracker in enumerate(tracker_service.trackers):
-                if tracker.state==State.BUSY and (now-tracker.last_track_time).total_seconds()>10:
+                if (tracker.state==State.BUSY or tracker.state == State.RESERVED) and (now-tracker.last_track_time).total_seconds()>10:
                     #log the reset
                     logger.info("reset tracker {} because it is idle for more than 10 sec".format(i))
                     tracker.reset()
@@ -313,17 +314,17 @@ def serve(max_workers,port,config_path):
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Segment anything server")
+    parser.add_argument('--max-workers',type=int,default=2,help='max number of workers')
+    parser.add_argument('--port',type=int,default=50051,help='port number')
+    parser.add_argument('--config-path',type=str,required=True,help='tracking model path')
+    args = parser.parse_args()
     formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
-    handler = TimedRotatingFileHandler('ato_tracker.log', 
+    handler = TimedRotatingFileHandler('aot_tracker_{}.log'.format(args.port), 
                                    when='midnight',
                                    backupCount=10)
     handler.setFormatter(formatter)
     logger = logging.getLogger(__name__)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-    parser = argparse.ArgumentParser(description="Segment anything server")
-    parser.add_argument('--max-workers',type=int,default=2,help='max number of workers')
-    parser.add_argument('--port',type=int,default=50051,help='port number')
-    parser.add_argument('--config-path',type=str,required=True,help='tracking model path')
-    args = parser.parse_args()
     serve(args.max_workers,args.port,args.config_path)
