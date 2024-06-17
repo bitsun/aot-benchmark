@@ -1,10 +1,10 @@
 
 import importlib
 import sys
-import os
+# import os
 sys.path.append('.')
 sys.path.append('..')
-
+from configs.pre_ytb_dav import DeAOTSEngineConfig,DeAOTLEngineConfig,DeAOTTEngineConfig
 from networks.models.aot import AOT
 from networks.models.deaot import DeAOT
 from networks.engines import build_engine
@@ -79,10 +79,17 @@ class AOTTracker:
             assert model_type<= ModelType.swinb_aotl
         elif tracker_type==TrackerType.deaot:
             assert model_type<= ModelType.swinb_deaotl and model_type>=ModelType.deaott
-        engine_config = importlib.import_module('configs.'+'pre_ytb_dav')
         #get the string of model type
         model_type = model_type.lower()
-        cfg = engine_config.EngineConfig('default', model_type)
+        if model_type==ModelType.deaott:
+            cfg = DeAOTTEngineConfig()
+        elif model_type==ModelType.deaots:
+            cfg = DeAOTSEngineConfig()
+        elif model_type==ModelType.deaotl:
+            cfg = DeAOTLEngineConfig()
+        else:
+            engine_config = importlib.import_module('configs.'+'pre_ytb_dav')
+            cfg = engine_config.EngineConfig('default', model_type)
         cfg.TEST_CKPT_PATH = model_path
         cfg.TEST_MIN_SIZE = None
         cfg.TEST_MAX_SIZE = max_size * 800. / 480.

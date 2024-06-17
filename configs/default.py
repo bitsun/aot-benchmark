@@ -1,11 +1,13 @@
 import os
 import importlib
 
-
 class DefaultEngineConfig():
     def __init__(self, exp_name='default', model='aott'):
-        model_cfg = importlib.import_module('configs.models.' +
+        if type(model)==str:
+            model_cfg = importlib.import_module('configs.models.' +
                                             model).ModelConfig()
+        else:
+            model_cfg = model
         self.__dict__.update(model_cfg.__dict__)  # add model config
 
         self.EXP_NAME = exp_name + '_' + self.MODEL_NAME
