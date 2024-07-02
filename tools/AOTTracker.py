@@ -59,7 +59,7 @@ class ModelType(Enum):
 
 class AOTTracker:
     def __init__(self,model_path:str,tracker_type="DeAOT",model_type="DeAOTL",
-                 max_size=480 * 1.3,device='cuda',half=False):
+                 max_size=480 * 1.3,device='cuda',half=True):
         """
         constructor of AOTTracker
         model_path: path to the model
@@ -226,12 +226,12 @@ class AOTTracker:
             and frame.shape[2]==3 and frame.dtype==np.uint8)
         assert (isinstance(label,np.ndarray) and label.ndim==2\
             and label.dtype==np.uint8)
-        self.clear()
+        #self.clear()
         #determin the number of objects
         obj_nums = np.max(label)
         if obj_nums==0:
             raise ValueError("no object in the reference frame")
-        self.engine.restart_engine()
+        #self.engine.restart_engine()
         frame_tensor = self.preprocess(frame)
         frame_tensor = frame_tensor.unsqueeze(0).cuda()
         label_tensor = torch.from_numpy(label).float().cuda().unsqueeze(0).unsqueeze(0)

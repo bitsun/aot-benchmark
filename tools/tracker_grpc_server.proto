@@ -118,6 +118,7 @@ service SegmentAnything {
 service StatefulTrackerService {
     rpc next_available_tracker_instance(Void) returns (InstanceResponse) {}
     rpc set_template_mask(StatefulInitialMask) returns (BooleanResponse) {}
+	rpc clear(TrackerInstance) returns (BooleanResponse){}
     rpc track(StatefulTrackRequest) returns (TrackResponse) {}
     rpc freeze(TrackerInstance) returns (BooleanResponse) {}
     rpc finish(TrackerInstance) returns (BooleanResponse) {}

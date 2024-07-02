@@ -1,9 +1,21 @@
 from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class SamType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Unknown: _ClassVar[SamType]
+    SAM: _ClassVar[SamType]
+    EfficientVitSAM: _ClassVar[SamType]
+    SAM_HQ: _ClassVar[SamType]
+Unknown: SamType
+SAM: SamType
+EfficientVitSAM: SamType
+SAM_HQ: SamType
 
 class Point(_message.Message):
     __slots__ = ["x", "y", "label"]
@@ -50,6 +62,14 @@ class BooleanResponse(_message.Message):
     success: bool
     error_msg: str
     def __init__(self, success: bool = ..., error_msg: _Optional[str] = ...) -> None: ...
+
+class SamTypeResponse(_message.Message):
+    __slots__ = ["sam_type", "error_msg"]
+    SAM_TYPE_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MSG_FIELD_NUMBER: _ClassVar[int]
+    sam_type: SamType
+    error_msg: str
+    def __init__(self, sam_type: _Optional[_Union[SamType, str]] = ..., error_msg: _Optional[str] = ...) -> None: ...
 
 class Void(_message.Message):
     __slots__ = []

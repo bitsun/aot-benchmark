@@ -344,6 +344,11 @@ class StatefulTrackerServiceStub(object):
                 request_serializer=tracker__grpc__server__pb2.StatefulInitialMask.SerializeToString,
                 response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
                 )
+        self.clear = channel.unary_unary(
+                '/Ivitec.StatefulTrackerService/clear',
+                request_serializer=tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
+                response_deserializer=tracker__grpc__server__pb2.BooleanResponse.FromString,
+                )
         self.track = channel.unary_unary(
                 '/Ivitec.StatefulTrackerService/track',
                 request_serializer=tracker__grpc__server__pb2.StatefulTrackRequest.SerializeToString,
@@ -371,6 +376,12 @@ class StatefulTrackerServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def set_template_mask(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def clear(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -405,6 +416,11 @@ def add_StatefulTrackerServiceServicer_to_server(servicer, server):
             'set_template_mask': grpc.unary_unary_rpc_method_handler(
                     servicer.set_template_mask,
                     request_deserializer=tracker__grpc__server__pb2.StatefulInitialMask.FromString,
+                    response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
+            ),
+            'clear': grpc.unary_unary_rpc_method_handler(
+                    servicer.clear,
+                    request_deserializer=tracker__grpc__server__pb2.TrackerInstance.FromString,
                     response_serializer=tracker__grpc__server__pb2.BooleanResponse.SerializeToString,
             ),
             'track': grpc.unary_unary_rpc_method_handler(
@@ -462,6 +478,23 @@ class StatefulTrackerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Ivitec.StatefulTrackerService/set_template_mask',
             tracker__grpc__server__pb2.StatefulInitialMask.SerializeToString,
+            tracker__grpc__server__pb2.BooleanResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def clear(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Ivitec.StatefulTrackerService/clear',
+            tracker__grpc__server__pb2.TrackerInstance.SerializeToString,
             tracker__grpc__server__pb2.BooleanResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

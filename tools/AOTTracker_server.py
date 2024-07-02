@@ -202,6 +202,18 @@ class StatefulAoTTrackerService(pb2_grpc.StatefulTrackerService) :
             self.lock.release()
         return pb2.InstanceResponse(instance_id=-1,error_msg="no available instance")
 
+    def clear(self,request,context):
+        try:
+            if request.instance_id<0 or request.instance_id>=len(self.trackers):
+                raise Exception("invalid instance id")
+            if request.token!=self.trackers[request.instance_id].token:
+                raise Exception("invalid token")
+            self.trackers[request.instance_id].tracker.clear()
+            logger.info("tracker {} is clared".format(request.instance_id))
+            return pb2.BooleanResponse(success=True,error_msg="")
+        except Exception as e:
+            error_msg=traceback.format_exc()
+            return pb2.BooleanResponse(success=False,error_msg=error_msg)
     def set_template_mask(self,request,context):
         try:
             if request.instance_id<0 or request.instance_id>=len(self.trackers):
