@@ -128,6 +128,19 @@ class AOTTracker:
         self.engine.restart_engine()
         self.freezed = False
         self.max_stride = 16
+
+    def set_batch_size(self,batch_size):
+        """
+        set the batch size of the tracker
+        """
+        self.engine.batch_size = batch_size
+
+    def get_batch_size(self):
+        """
+        get the batch size of the tracker
+        """
+        return self.engine.batch_size
+    
     def preprocess(self, image):
         """
         do a preprocessing of input image
@@ -243,18 +256,30 @@ class AOTTracker:
             frame_tensor = frame_tensor.half()
             label_tensor = label_tensor.half()
         self.engine.add_reference_frame(frame_tensor,label_tensor,
-                                        frame_step=0,obj_nums=obj_nums)
+                                    frame_step=0,obj_nums=obj_nums)
         self.freezed = False
-    def track(self,frame):
+        
+    def track(self,frames):
         """
         track the objects in the frame
-        frame: a numpy array of the frame
+        frame: a numpy array of the frame or a list of numpy array of the frames
         return: a tuple. The 1st element is the mask label which has the same size 
                as the input frame. The 2nd element is the mask confidences score map
         """
-        assert (isinstance(frame,np.ndarray) and frame.ndim==3\
-            and frame.shape[2]==3 and frame.dtype==np.uint8)
-        frame_tensor = self.preprocess(frame).cuda().unsqueeze(0)
+        if isinstance(frames,list):
+            frame_tensor = []
+            for frame in frames:
+                assert (isinstance(frame,np.ndarray) and frame.ndim==3\
+                    and frame.shape[2]==3 and frame.dtype==np.uint8)
+                frame_tensor.append(self.preprocess(frame).cuda().unsqueeze(0))
+            frame_tensor = torch.cat(frame_tensor,dim=0)
+        # elif isinstance(frames,np.ndarray):
+        #     assert frames.ndim==3\
+        #             and frames.shape[2]==3 and frames.dtype==np.uint8
+        #     frame = frames
+        #     frame_tensor = self.preprocess(frames).cuda().unsqueeze(0)
+        else:
+            raise ValueError("frames should be a list of numpy array")
         if self.half:
             frame_tensor = frame_tensor.half()
         with torch.no_grad():

@@ -67,7 +67,7 @@ class DeAOTInferEngine(AOTInferEngine):
                  max_aot_obj_num=None):
         super().__init__(aot_model, gpu_id, long_term_mem_gap,
                          short_term_mem_skip, max_aot_obj_num)
-
+        
     def add_reference_frame(self, img, mask, obj_nums, frame_step=-1):
         if isinstance(obj_nums, list):
             obj_nums = obj_nums[0]
@@ -87,9 +87,20 @@ class DeAOTInferEngine(AOTInferEngine):
                 self.aot_engines, separated_masks, separated_obj_nums):
             aot_engine.add_reference_frame(img,
                                            separated_mask,
-                                           obj_nums=[separated_obj_num],
+                                           obj_nums=[separated_obj_num]*self.batch_size,
                                            frame_step=frame_step,
                                            img_embs=img_embs)
+            if self.batch_size>1:
+                for k in range(len(aot_engine.long_term_memories[0])):
+                    if aot_engine.long_term_memories[0][k] is not None:
+                        aot_engine.long_term_memories[0][k] = aot_engine.long_term_memories[0][k].repeat(1,self.batch_size,1)
+                    if aot_engine.long_term_memories[1][k] is not None:
+                        aot_engine.long_term_memories[1][k] = aot_engine.long_term_memories[1][k].repeat(1,self.batch_size,1)
+                for k in range(len(aot_engine.short_term_memories[0])):
+                    if aot_engine.short_term_memories[0][k] is not None:
+                        aot_engine.short_term_memories[0][k] = aot_engine.short_term_memories[0][k].repeat(self.batch_size,1,1,1)
+                    if aot_engine.short_term_memories[1][k] is not None:
+                        aot_engine.short_term_memories[1][k] = aot_engine.short_term_memories[1][k].repeat(self.batch_size,1,1,1)
             if img_embs is None:  # reuse image embeddings
                 img_embs = aot_engine.curr_enc_embs
 

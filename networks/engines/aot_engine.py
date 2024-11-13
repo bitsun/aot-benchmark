@@ -496,6 +496,7 @@ class AOTInferEngine(nn.Module):
 
         self.cfg = aot_model.cfg
         self.AOT = aot_model
+        self.batch_size = 1
 
         if max_aot_obj_num is None or max_aot_obj_num > aot_model.max_obj_num:
             self.max_aot_obj_num = aot_model.max_obj_num
